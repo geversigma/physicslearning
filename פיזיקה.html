@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>פיזיקה — סיכום נוסחאות</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e3a5f;
+    --accent: #00c8ff;
+    --accent2: #ff6b35;
+    --accent3: #7fff6b;
+    --text: #e8f0fe;
+    --text-dim: #7a8fb5;
+    --formula-bg: #0d1b2e;
+    --glow: 0 0 20px rgba(0,200,255,0.3);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Starfield background */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(0,50,100,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(0,100,80,0.1) 0%, transparent 50%);
+    pointer-events:none; z-index:0;
+  }
+
+  header {
+    position: relative;
+    padding: 60px 40px 40px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(0,200,255,0.05) 0%, transparent 100%);
+  }
+
+  header h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, #00c8ff 0%, #7fff6b 50%, #ff6b35 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+  }
+
+  header p {
+    color: var(--text-dim);
+    margin-top: 12px;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+
+  /* Floating particles */
+  .particles {
+    position: fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;
+  }
+  .particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0;
+    animation: float-up linear infinite;
+  }
+  @keyframes float-up {
+    0% { opacity:0; transform: translateY(100vh) translateX(0); }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.3; }
+    100% { opacity:0; transform: translateY(-10vh) translateX(30px); }
+  }
+
+  /* Nav tabs */
+  nav {
+    position: sticky; top:0; z-index: 100;
+    display: flex; gap: 4px;
+    padding: 12px 20px;
+    background: rgba(10,14,26,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display:none; }
+
+  nav button {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Heebo', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink:0;
+  }
+  nav button:hover { color: var(--accent); border-color: var(--accent); }
+  nav button.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  /* Main layout */
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    position: relative; z-index:1;
+  }
+
+  .section { display:none; }
+  .section.active { display:block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+  .section-title {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--accent);
+  }
+  .section-title::after {
+    content:'';
+    flex:1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  /* Cards grid */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    opacity:0;
+    transition: opacity 0.2s;
+  }
+  .card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: var(--glow); }
+  .card:hover::before { opacity:1; }
+
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+  }
+
+  .formula {
+    background: var(--formula-bg);
+    border: 1px solid rgba(0,200,255,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    color: #fff;
+    margin: 8px 0;
+    direction: ltr;
+    text-align: center;
+    position: relative;
+  }
+
+  .formula .label {
+    position: absolute;
+    top: 4px; right: 8px;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    font-family: 'Heebo', sans-serif;
+  }
+
+  .desc {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  .tag {
+    display: inline-block;
+    background: rgba(0,200,255,0.1);
+    border: 1px solid rgba(0,200,255,0.3);
+    color: var(--accent);
+    font-size: 0.7rem;
+    padding: 2px 10px;
+    border-radius: 20px;
+    margin: 4px 2px 0;
+    font-weight: 600;
+  }
+
+  /* Simulation containers */
+  .sim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+
+  .sim-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent3);
+    margin-bottom: 6px;
+  }
+  .sim-card p.sim-desc { font-size:0.85rem; color:var(--text-dim); margin-bottom:18px; }
+
+  canvas {
+    display: block;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: #050a14;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .sim-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sim-controls label {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sim-controls input[type=range] {
+    accent-color: var(--accent);
+    width: 120px;
+  }
+
+  .btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 9px 22px;
+    border-radius: 10px;
+    font-family: 'Heebo', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: #fff; box-shadow: var(--glow); }
+  .btn.secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .sim-info {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    justify-content: center;
+  }
+  .sim-info span {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+    background: var(--formula-bg);
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    color: var(--accent3);
+  }
+
+  /* Table for formulas */
+  .formula-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    margin-top: 8px;
+  }
+  .formula-table td, .formula-table th {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+  }
+  .formula-table th {
+    color: var(--accent);
+    font-weight: 700;
+    background: var(--formula-bg);
+  }
+  .formula-table td:first-child {
+    font-family: 'Space Mono', monospace;
+    direction: ltr;
+    text-align: center;
+    color: #fff;
+    background: var(--formula-bg);
+    border-radius: 6px;
+    font-size:0.85rem;
+  }
+  .formula-table tr:hover td { background: rgba(0,200,255,0.05); }
+
+  @media(max-width:600px){
+    .cards-grid { grid-template-columns:1fr; }
+    header { padding:40px 20px 30px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<header>
+  <h1>⚛ פיזיקה</h1>
+  <p>סיכום נוסחאות · הדמיות אינטראקטיביות · מכניקה ועוד</p>
+</header>
+
+<nav id="nav">
+  <button class="active" onclick="showSection('kinematics')">📐 קינמטיקה</button>
+  <button onclick="showSection('dynamics')">⚡ דינמיקה</button>
+  <button onclick="showSection('energy')">🔋 עבודה ואנרגיה</button>
+  <button onclick="showSection('momentum')">💥 תנע</button>
+  <button onclick="showSection('gravity')">🪐 כבידה</button>
+  <button onclick="showSection('circular')">🔄 תנועה מעגלית</button>
+  <button onclick="showSection('sims')">🎮 הדמיות</button>
+</nav>
+
+<main>
+
+<!-- ======= KINEMATICS ======= -->
+<section class="section active" id="kinematics">
+  <div class="section-title">📐 קינמטיקה — תנועה לאורך ציר ישר</div>
+
+  <div class="cards-grid">
+    <div class="card">
+      <h3>מהירות ותאוצה רגעית</h3>
+      <div class="formula">v = dx/dt<span class="label">מהירות רגעית</span></div>
+      <div class="formula">a = dv/dt<span class="label">תאוצה רגעית</span></div>
+      <div class="desc">הנגזרת של המקום היא המהירות; נגזרת המהירות היא התאוצה.</div>
+    </div>
+
+    <div class="card">
+      <h3>מהירות ממוצעת</h3>
+      <div class="formula">v̄ = Δx / Δt</div>
+      <div class="desc">שינוי מקום חלקי שינוי זמן. שימו לב: מהירות ממוצעת ≠ ממוצע המהירויות בהכרח.</div>
+    </div>
+
+    <div class="card">
+      <h3>נוסחאות תנועה שוות-תאוצה</h3>
+      <div class="formula">v = v₀ + at</div>
+      <div class="formula">x = x₀ + v₀t + ½at²</div>
+      <div class="formula">x = x₀ + ((v₀+v)/2)·t</div>
+      <div class="formula">v² = v₀² + 2a(x - x₀)</div>
+      <div class="desc">ארבע נוסחאות קינמטיקה — הכרחי לדעת איזה גודל חסר ולבחור בהתאם.</div>
+      <span class="tag">תאוצה קבועה</span>
+    </div>
+
+    <div class="card">
+      <h3>מהירות יחסית</h3>
+      <div class="formula">v<sub>B,A</sub> = v<sub>B</sub> – v<sub>A</sub></div>
+      <div class="desc">מהירות B ביחס ל-A היא הפרש המהירויות. שימושי בבעיות מרדף ומפגש.</div>
+      <span class="tag">מסגרת ייחוס</span>
+    </div>
+  </div>
+
+  <!-- mini visual: v-t graph -->
+  <div class="sim-card">
+    <h3>גרף v-t — תנועה שוות-תאוצה</h3>
+    <p class="sim-desc">גרר את הסליידר לשינוי התאוצה וצפה כיצד גרף המהירות-זמן משתנה. השטח מתחת לגרף = ההזזה.</p>
+    <canvas id="vtCanvas" height="220"></canvas>
+    <div class="sim-controls">
+      <label>תאוצה a: <input type="range" id="vtA" min="-5" max="5" value="2" step="0.5">
+        <span id="vtAVal">2 m/s²</span></label>
+      <label>מהירות התחלתית v₀: <input type="range" id="vtV0" min="-5" max="10" value="3" step="0.5">
+        <span id="vtV0Val">3 m/s</span></label>
+    </div>
+  </div>
+</section>
+
+<!-- ======= DYNAMICS ======= -->
+<section class="section" id="dynamics">
+  <div class="section-title">⚡ דינמיקה</div>
+
+  <div class="cards-grid">
+    <div class="card">
+      <h3>חוק שני של ניוטון</h3>
+      <div class="formula">ΣF⃗ = ma⃗</div>
+      <div class="desc">סכום כל הכוחות הפועלים על גוף שווה למסתו כפול תאוצתו. הבסיס של הדינמיקה.</div>
+      <span class="tag">וקטורי</span>
+    </div>
+
+    <div class="card">
+      <h3>כוח הכבידה</h3>
+      <div class="formula">F = mg</div>
+      <div class="desc">g ≈ 9.8 m/s² על פני כדור הארץ. הכוח פועל כלפי מטה (מרכז כדוה"א).</div>
+    </div>
+
+    <div class="card">
+      <h3>חוק הוק — כוח אלסטי</h3>
+      <div class="formula">F = kΔℓ</div>
+      <div class="desc">k — קבוע הקפיץ [N/m], Δℓ — ההתארכות.</div>
+      <span class="tag">כוח משחזר</span>
+    </div>
+
+    <div class="card">
+      <h3>כוח חיכוך</h3>
+      <div class="formula">f_s ≤ μ_s · N</div>
+      <div class="formula">f_k = μ_k · N</div>
+      <div class="desc">חיכוך סטטי מקסימלי לעומת חיכוך קינטי. N — כוח הנורמל.</div>
+      <span class="tag">סטטי</span><span class="tag">קינטי</span>
+    </div>
+
+    <div class="card">
+      <h3>צפיפות חומר</h3>
+      <div class="formula">ρ = m / V</div>
+      <div class="desc">צפיפות = מסה חלקי נפח. יחידות: kg/m³ או g/cm³.</div>
+    </div>
+  </div>
+
+  <!-- Free body diagram visualizer -->
+  <div class="sim-card">
+    <h3>ויזואליזציה: חוק שני של ניוטון</h3>
+    <p class="sim-desc">שנה את הכוח הכולל ואת המסה. ראה כיצד התאוצה משתנה.</p>
+    <canvas id="newtonCanvas" height="220"></canvas>
+    <div class="sim-controls">
+      <label>כוח F: <input type="range" id="nF" min="0" max="100" value="30" step="5">
+        <span id="nFVal">30 N</span></label>
+      <label>מסה m: <input type="range" id="nM" min="1" max="20" value="5" step="1">
+        <span id="nMVal">5 kg</span></label>
+    </div>
+    <div class="sim-info">
+      <span id="nResult">a = 6.00 m/s²</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======= ENERGY ======= -->
+<section class="section" id="energy">
+  <div class="section-title">🔋 עבודה, אנרגיה והספק</div>
+
+  <div class="cards-grid">
+    <div class="card">
+      <h3>עבודה</h3>
+      <div class="formula">W = F·Δx·cosθ = FΔs</div>
+      <div class="formula">W = ∫F_x(x)dx</div>
+      <div class="desc">עבודה = כוח · הזזה · cos(זווית ביניהם). כוח מאונך להזזה לא עושה עבודה.</div>
+      <span class="tag">סקלרי</span>
+    </div>
+
+    <div class="card">
+      <h3>אנרגיה קינטית</h3>
+      <div class="formula">E_k = ½mv²</div>
+      <div class="desc">אנרגיית תנועה. תלויה בריבוע המהירות — הכפלת מהירות מרבעת את האנרגיה.</div>
+    </div>
+
+    <div class="card">
+      <h3>אנרגיה פוטנציאלית כבדית</h3>
+      <div class="formula">U_G = mgh</div>
+      <div class="desc">h נמדד מנקודת ייחוס שרירותית. U_G(h=0) = 0.</div>
+      <span class="tag">שדה אחיד</span>
+    </div>
+
+    <div class="card">
+      <h3>משפט עבודה-אנרגיה</h3>
+      <div class="formula">W_כולל = ΔE_k</div>
+      <div class="desc">העבודה הכוללת של כל הכוחות שווה לשינוי באנרגיה הקינטית.</div>
+    </div>
+
+    <div class="card">
+      <h3>שימור אנרגיה מכנית</h3>
+      <div class="formula">W_לא שמרניים = ΔE (מכנית כוללת)</div>
+      <div class="desc">E = E_k + U. אם אין כוחות לא-שמרניים (חיכוך) — האנרגיה המכנית שמורה.</div>
+    </div>
+
+    <div class="card">
+      <h3>הספק ממוצע</h3>
+      <div class="formula">P̄ = ΔW / Δt</div>
+      <div class="desc">קצב ביצוע עבודה. יחידות: וואט [W] = J/s.</div>
+    </div>
+  </div>
+
+  <!-- Energy conservation simulation -->
+  <div class="sim-card">
+    <h3>הדמיה: שימור אנרגיה — כדור על מדרון</h3>
+    <p class="sim-desc">צפה כיצד אנרגיה קינטית ופוטנציאלית מתחלפות. סה"כ האנרגיה נשמר (ללא חיכוך).</p>
+    <canvas id="energyCanvas" height="260"></canvas>
+    <div class="sim-controls">
+      <label>גובה התחלתי h: <input type="range" id="eH" min="50" max="200" value="150" step="10">
+        <span id="eHVal">150 m</span></label>
+      <button class="btn" onclick="startEnergySim()">▶ הפעל</button>
+      <button class="btn secondary" onclick="resetEnergySim()">↺ איפוס</button>
+    </div>
+    <div class="sim-info">
+      <span>Ek = <span id="eKin">0.0</span> J</span>
+      <span>Ep = <span id="ePot">0.0</span> J</span>
+      <span>E_total = <span id="eTotal">0.0</span> J</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======= MOMENTUM ======= -->
+<section class="section" id="momentum">
+  <div class="section-title">💥 מתקף ותנע</div>
+
+  <div class="cards-grid">
+    <div class="card">
+      <h3>תנע</h3>
+      <div class="formula">p⃗ = mv⃗</div>
+      <div class="desc">תנע = מסה × מהירות. וקטור — יש כיוון. יחידות: kg·m/s.</div>
+    </div>
+
+    <div class="card">
+      <h3>מתקף</h3>
+      <div class="formula">J⃗ = ∫F⃗(t)dt</div>
+      <div class="formula">J⃗ = F̄·Δt</div>
+      <div class="desc">שטח הגרף F-t = מתקף. מתקף שווה לשינוי בתנע.</div>
+    </div>
+
+    <div class="card">
+      <h3>נוסחת מתקף-תנע</h3>
+      <div class="formula">J⃗ = Δp⃗</div>
+      <div class="desc">מתקף הכוח על גוף שווה לשינוי בתנעו. פועל מחוק שני של ניוטון.</div>
+    </div>
+
+    <div class="card">
+      <h3>שימור תנע</h3>
+      <div class="formula">m_A·v̄_A + m_B·v̄_B = m_A·ū_A + m_B·ū_B</div>
+      <div class="desc">בהעדר כוחות חיצוניים — סכום התנע שמור. v לפני, u אחרי.</div>
+      <span class="tag">מערכת סגורה</span>
+    </div>
+
+    <div class="card">
+      <h3>התנגשות אלסטית מושלמת</h3>
+      <div class="formula">v̄_A - v̄_B = -(ū_A - ū_B)</div>
+      <div class="desc">מהירות ההתקרבות = מהירות ההתרחקות. תנע ואנרגיה קינטית שמורים.</div>
+      <span class="tag">אלסטי</span>
+    </div>
+  </div>
+
+  <!-- Collision simulation -->
+  <div class="sim-card">
+    <h3>הדמיה: התנגשות בין שני עצמים</h3>
+    <p class="sim-desc">שימור תנע בפעולה — שינוי מסות ומהירויות.</p>
+    <canvas id="collisionCanvas" height="180"></canvas>
+    <div class="sim-controls">
+      <label>מסה A: <input type="range" id="cMA" min="1" max="10" value="3" step="1">
+        <span id="cMAVal">3 kg</span></label>
+      <label>מהירות A: <input type="range" id="cVA" min="1" max="10" value="5" step="0.5">
+        <span id="cVAVal">5 m/s</span></label>
+      <label>מסה B: <input type="range" id="cMB" min="1" max="10" value="3" step="1">
+        <span id="cMBVal">3 kg</span></label>
+      <label>סוג: <select id="cType" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);padding:6px;border-radius:8px;font-family:Heebo,sans-serif;">
+        <option value="elastic">אלסטי</option>
+        <option value="inelastic">לא אלסטי מושלם</option>
+      </select></label>
+      <button class="btn" onclick="startCollision()">▶ הפעל</button>
+      <button class="btn secondary" onclick="resetCollision()">↺ איפוס</button>
+    </div>
+    <div class="sim-info">
+      <span>p לפני = <span id="cPBefore">—</span></span>
+      <span>p אחרי = <span id="cPAfter">—</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ======= GRAVITY ======= -->
+<section class="section" id="gravity">
+  <div class="section-title">🪐 כבידה</div>
+
+  <div class="cards-grid">
+    <div class="card">
+      <h3>חוק הכבידה של ניוטון</h3>
+      <div class="formula">F = G·m₁·m₂ / r²</div>
+      <div class="desc">G = 6.674×10⁻¹¹ N·m²/kg². הכוח מושך, פועל לאורך הקו המחבר בין המסות.</div>
+      <span class="tag">1/r²</span>
+    </div>
+
+    <div class="card">
+      <h3>אנרגיה פוטנציאלית כבדית</h3>
+      <div class="formula">U_G = -GMm/r</div>
+      <div class="desc">שלילית תמיד — מגדירים U=0 במרחק אינסוף. ככל שמתקרבים, האנרגיה יורדת.</div>
+    </div>
+
+    <div class="card">
+      <h3>חוק קפלר השלישי</h3>
+      <div class="formula">(T₁/T₂)² = (r₁/r₂)³</div>
+      <div class="desc">ריבוע תקופת המחזור פרופורציונלי לשלישית הרדיוס. מתקיים לכל גופים סביב אותו מרכז.</div>
+      <span class="tag">קפלר</span>
+    </div>
+
+    <div class="card">
+      <h3>אנרגיה מסלולית (מסלול מעגלי)</h3>
+      <div class="formula">E_k = GMm/2r = -U_G/2</div>
+      <div class="formula">E = -GMm/2r (כוללת)</div>
+      <div class="desc">האנרגיה הכוללת של לוויין במסלול מעגלי שלילית תמיד.</div>
+      <span class="tag">לוויין</span>
+    </div>
+
+    <div class="card">
+      <h3>טרנספורמציית שדה</h3>
+      <div class="formula">g̃_B = g̃_A – ã_{B,A}</div>
+      <div class="desc">שדה הכבידה במסגרת B שווה לשדה ב-A פחות תאוצת B ביחס ל-A. שקילות תאוצה-כבידה.</div>
+      <span class="tag">יחסות כללית</span>
+    </div>
+  </div>
+
+  <!-- Gravity orbit simulation -->
+  <div class="sim-card">
+    <h3>הדמיה: לוויין במסלול מעגלי</h3>
+    <p class="sim-desc">ויזואליזציה של כוח כבידה ומסלול לוויין. שינוי מרחק → שינוי מהירות מסלולית.</p>
+    <canvas id="orbitCanvas" height="300"></canvas>
+    <div class="sim-controls">
+      <label>מרחק: <input type="range" id="oR" min="60" max="130" value="90" step="5">
+        <span id="oRVal">90</span></label>
+      <button class="btn" onclick="toggleOrbit()">⏸ עצור / הפעל</button>
+    </div>
+    <div class="sim-info">
+      <span>מהירות מסלולית: <span id="oV">—</span> יח'</span>
+      <span>כוח כבידה: <span id="oF">—</span> יח'</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======= CIRCULAR ======= -->
+<section class="section" id="circular">
+  <div class="section-title">🔄 תנועה מעגלית ותנועות מחזוריות</div>
+
+  <div class="cards-grid">
+    <div class="card">
+      <h3>תדירות וזוויתית</h3>
+      <div class="formula">ω = 2πf = 2π/T</div>
+      <div class="desc">ω — מהירות זוויתית [rad/s], f — תדירות [Hz], T — מחזור [s].</div>
+    </div>
+
+    <div class="card">
+      <h3>מהירות זוויתית ממוצעת</h3>
+      <div class="formula">ω̄ = Δθ / Δt</div>
+      <div class="desc">זווית חלקי זמן. הקשר בין מהירות קווית למהירות זוויתית:</div>
+      <div class="formula">v = ωr</div>
+    </div>
+
+    <div class="card">
+      <h3>תאוצה צנטריפטלית</h3>
+      <div class="formula">a_R = v²/r = ω²r</div>
+      <div class="desc">תאוצה רדיאלית — מכוונת אל מרכז המסלול. אחראית על שינוי כיוון המהירות.</div>
+      <span class="tag">צנטריפטלי</span>
+    </div>
+
+    <div class="card">
+      <h3>מטוטלת פשוטה</h3>
+      <div class="formula">T = 2π√(ℓ/g)</div>
+      <div class="desc">מחזור תנדות תלוי רק באורך ובכוח הכבידה. לא תלוי במסה ולא באמפליטודה (לזוויות קטנות).</div>
+      <span class="tag">מטוטלת</span>
+    </div>
+
+    <div class="card">
+      <h3>נוסחאות תנועה זוויתית שוות-תאוצה</h3>
+      <div class="formula">a = -ω²A·cos(ωt + φ)</div>
+      <div class="formula">a = -ω²x</div>
+      <div class="formula">T = 2π√(m/c)</div>
+      <div class="desc">c — קבוע הכוח המשחזר. תאוצה פרופורציונלית ומנוגדת להזזה.</div>
+    </div>
+  </div>
+
+  <!-- Circular motion simulation -->
+  <div class="sim-card">
+    <h3>הדמיה: תנועה מעגלית אחידה</h3>
+    <p class="sim-desc">ויזואליזציה של מהירות (משיקית) ותאוצה צנטריפטלית. שנה את הרדיוס ומהירות.</p>
+    <canvas id="circularCanvas" height="300"></canvas>
+    <div class="sim-controls">
+      <label>רדיוס: <input type="range" id="cirR" min="40" max="110" value="80" step="5">
+        <span id="cirRVal">80</span></label>
+      <label>מהירות זוויתית: <input type="range" id="cirW" min="0.5" max="4" value="1.5" step="0.1">
+        <span id="cirWVal">1.5</span></label>
+    </div>
+    <div class="sim-info">
+      <span>v = <span id="cirV">—</span> m/s</span>
+      <span>a_R = <span id="cirA">—</span> m/s²</span>
+      <span>T = <span id="cirT">—</span> s</span>
+    </div>
+  </div>
+</section>
+
+<!-- ======= SIMULATIONS HUB ======= -->
+<section class="section" id="sims">
+  <div class="section-title">🎮 מרכז הדמיות</div>
+  <p style="color:var(--text-dim);margin-bottom:28px;">כל ההדמיות האינטראקטיביות במקום אחד. לחץ על הכפתורים בניווט לגישה ישירה לכל הדמיה.</p>
+
+  <div class="cards-grid">
+    <div class="card" onclick="showSection('kinematics')" style="cursor:pointer">
+      <h3>📐 גרף v-t</h3>
+      <div class="desc">תנועה שוות-תאוצה — ראה כיצד תאוצה ומהירות התחלתית מעצבות את הגרף.</div>
+      <span class="tag">קינמטיקה</span>
+    </div>
+    <div class="card" onclick="showSection('dynamics')" style="cursor:pointer">
+      <h3>⚡ חוק שני של ניוטון</h3>
+      <div class="desc">שנה כוח ומסה — ראה תאוצה בזמן אמת.</div>
+      <span class="tag">דינמיקה</span>
+    </div>
+    <div class="card" onclick="showSection('energy')" style="cursor:pointer">
+      <h3>🔋 שימור אנרגיה</h3>
+      <div class="desc">כדור יורד מדרון — E_k ו-E_p מתחלפים, סה"כ שמור.</div>
+      <span class="tag">אנרגיה</span>
+    </div>
+    <div class="card" onclick="showSection('momentum')" style="cursor:pointer">
+      <h3>💥 התנגשות</h3>
+      <div class="desc">התנגשות אלסטית ולא-אלסטית — שימור תנע.</div>
+      <span class="tag">תנע</span>
+    </div>
+    <div class="card" onclick="showSection('gravity')" style="cursor:pointer">
+      <h3>🪐 לוויין במסלול</h3>
+      <div class="desc">מסלול מעגלי סביב כוכב — קשר בין מרחק למהירות.</div>
+      <span class="tag">כבידה</span>
+    </div>
+    <div class="card" onclick="showSection('circular')" style="cursor:pointer">
+      <h3>🔄 תנועה מעגלית</h3>
+      <div class="desc">מהירות משיקית ותאוצה צנטריפטלית בפעולה.</div>
+      <span class="tag">מעגלי</span>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ===================== NAV =====================
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const btns = document.querySelectorAll('nav button');
+  const map = {kinematics:0,dynamics:1,energy:2,momentum:3,gravity:4,circular:5,sims:6};
+  btns[map[id]].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ===================== PARTICLES =====================
+(function(){
+  const c = document.getElementById('particles');
+  for(let i=0;i<30;i++){
+    const p = document.createElement('div');
+    p.className='particle';
+    p.style.left = Math.random()*100+'%';
+    p.style.animationDuration = (8+Math.random()*15)+'s';
+    p.style.animationDelay = (-Math.random()*20)+'s';
+    p.style.opacity = Math.random()*0.5;
+    if(Math.random()>0.5) p.style.background='#7fff6b';
+    if(Math.random()>0.7) p.style.background='#ff6b35';
+    c.appendChild(p);
+  }
+})();
+
+// ===================== v-t GRAPH =====================
+(function(){
+  const canvas = document.getElementById('vtCanvas');
+  const ctx = canvas.getContext('2d');
+  function draw(){
+    const W=canvas.clientWidth; canvas.width=W; canvas.height=220;
+    const a = parseFloat(document.getElementById('vtA').value);
+    const v0 = parseFloat(document.getElementById('vtV0').value);
+    document.getElementById('vtAVal').textContent=a+' m/s²';
+    document.getElementById('vtV0Val').textContent=v0+' m/s';
+    const pad=44, plotW=W-pad*2, plotH=150;
+    const tMax=8;
+    // axes
+    ctx.clearRect(0,0,W,220);
+    ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=1;
+    ctx.beginPath();
+    for(let t=0;t<=tMax;t++){ctx.moveTo(pad+t/tMax*plotW,40);ctx.lineTo(pad+t/tMax*plotW,40+plotH);}
+    // y gridlines
+    for(let i=-2;i<=3;i++){
+      const vy=v0+a*(i/3*tMax);
+      // skip
+    }
+    ctx.stroke();
+    // axes lines
+    ctx.strokeStyle='#3a5a7f'; ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.moveTo(pad,40); ctx.lineTo(pad,40+plotH); // y axis
+    ctx.moveTo(pad,40+plotH); ctx.lineTo(pad+plotW,40+plotH); // x axis
+    ctx.stroke();
+    // axis labels
+    ctx.fillStyle='#7a8fb5'; ctx.font='11px Space Mono'; ctx.textAlign='center';
+    for(let t=0;t<=tMax;t+=2){ctx.fillText(t,pad+t/tMax*plotW,40+plotH+16);}
+    ctx.fillText('t (s)',pad+plotW/2,40+plotH+32);
+    ctx.save(); ctx.translate(14,40+plotH/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText('v (m/s)',0,0); ctx.restore();
+    // compute range
+    const vStart=v0, vEnd=v0+a*tMax;
+    const vMin=Math.min(vStart,vEnd,-2), vMax=Math.max(vStart,vEnd,2);
+    const vRange=vMax-vMin || 1;
+    function toY(v){return 40+plotH - (v-vMin)/vRange*plotH;}
+    // zero line
+    ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+    ctx.beginPath(); ctx.moveTo(pad,toY(0)); ctx.lineTo(pad+plotW,toY(0)); ctx.stroke();
+    ctx.setLineDash([]);
+    // shade area under graph
+    ctx.beginPath();
+    ctx.moveTo(pad, toY(0));
+    for(let i=0;i<=100;i++){const t=i/100*tMax; ctx.lineTo(pad+i/100*plotW, toY(v0+a*t));}
+    ctx.lineTo(pad+plotW, toY(0)); ctx.closePath();
+    ctx.fillStyle='rgba(0,200,255,0.1)'; ctx.fill();
+    // graph line
+    ctx.beginPath();
+    ctx.strokeStyle='#00c8ff'; ctx.lineWidth=3;
+    for(let i=0;i<=100;i++){
+      const t=i/100*tMax, v=v0+a*t;
+      if(i===0) ctx.moveTo(pad+i/100*plotW, toY(v));
+      else ctx.lineTo(pad+i/100*plotW, toY(v));
+    }
+    ctx.stroke();
+    // label
+    ctx.fillStyle='#00c8ff'; ctx.font='bold 12px Heebo'; ctx.textAlign='left';
+    ctx.fillText('v = v₀ + at', pad+6, 36);
+    ctx.fillStyle='rgba(0,200,255,0.5)'; ctx.font='11px Heebo';
+    ctx.fillText('שטח = ΔX', pad+plotW/2-30, 40+plotH-8);
+  }
+  draw();
+  document.getElementById('vtA').addEventListener('input', draw);
+  document.getElementById('vtV0').addEventListener('input', draw);
+  window.addEventListener('resize', draw);
+})();
+
+// ===================== NEWTON CANVAS =====================
+(function(){
+  const canvas = document.getElementById('newtonCanvas');
+  const ctx = canvas.getContext('2d');
+  let animId=null, x=0, vel=0, running=false;
+
+  function drawStatic(){
+    const W=canvas.clientWidth; canvas.width=W; canvas.height=220;
+    const F=parseFloat(document.getElementById('nF').value);
+    const m=parseFloat(document.getElementById('nM').value);
+    const a=(F/m);
+    document.getElementById('nFVal').textContent=F+' N';
+    document.getElementById('nMVal').textContent=m+' kg';
+    document.getElementById('nResult').textContent='a = '+a.toFixed(2)+' m/s²';
+
+    ctx.clearRect(0,0,W,220);
+    // ground
+    ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(0,170); ctx.lineTo(W,170); ctx.stroke();
+
+    // block
+    const bx=W/2-30, by=130, bw=60, bh=40;
+    ctx.fillStyle='#1a2235'; ctx.strokeStyle='#00c8ff'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,8); ctx.fill(); ctx.stroke();
+    // mass label
+    ctx.fillStyle='#fff'; ctx.font='bold 13px Heebo'; ctx.textAlign='center';
+    ctx.fillText(m+' kg', bx+bw/2, by+bh/2+5);
+
+    // Force arrow
+    const arrowLen = Math.min(F*2, 140);
+    ctx.strokeStyle='#ff6b35'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(bx+bw,by+bh/2); ctx.lineTo(bx+bw+arrowLen,by+bh/2); ctx.stroke();
+    // arrowhead
+    ctx.fillStyle='#ff6b35';
+    ctx.beginPath();
+    ctx.moveTo(bx+bw+arrowLen,by+bh/2);
+    ctx.lineTo(bx+bw+arrowLen-10,by+bh/2-6);
+    ctx.lineTo(bx+bw+arrowLen-10,by+bh/2+6);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#ff6b35'; ctx.font='bold 12px Space Mono'; ctx.textAlign='left';
+    ctx.fillText('F='+F+'N', bx+bw+8, by+bh/2-10);
+
+    // Acceleration label
+    ctx.fillStyle='#7fff6b'; ctx.font='bold 14px Heebo'; ctx.textAlign='center';
+    ctx.fillText('a = '+a.toFixed(2)+' m/s²', W/2, 210);
+
+    // gravity arrow down
+    ctx.strokeStyle='#4a8fff'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(bx+bw/2,by+bh); ctx.lineTo(bx+bw/2,by+bh+30); ctx.stroke();
+    ctx.fillStyle='#4a8fff';
+    ctx.beginPath(); ctx.moveTo(bx+bw/2,by+bh+30); ctx.lineTo(bx+bw/2-5,by+bh+20); ctx.lineTo(bx+bw/2+5,by+bh+20); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#4a8fff'; ctx.font='11px Space Mono'; ctx.textAlign='right';
+    ctx.fillText('mg', bx+bw/2-6, by+bh+28);
+  }
+  drawStatic();
+  ['nF','nM'].forEach(id=>document.getElementById(id).addEventListener('input', drawStatic));
+  window.addEventListener('resize', drawStatic);
+})();
+
+// ===================== ENERGY SIM =====================
+let energyAnimId = null, energyRunning = false, energyBall = {x:0,y:0,vy:0,vx:0};
+function resetEnergySim(){
+  cancelAnimationFrame(energyAnimId);
+  energyRunning=false;
+  const canvas=document.getElementById('energyCanvas');
+  const W=canvas.clientWidth; canvas.width=W; canvas.height=260;
+  const h=parseFloat(document.getElementById('eH').value);
+  document.getElementById('eHVal').textContent=h+' m';
+  const m=1, g=9.8;
+  energyBall = {x:60, y:260-h, vx:3, vy:0, h0:h};
+  drawEnergy(canvas, energyBall, h, 0, m*g*h);
+}
+function drawEnergy(canvas, ball, h0, ek, ep){
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  // slope
+  ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(0,H-20); ctx.lineTo(W*0.6,H-20); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,H-20); ctx.lineTo(0,H-240); ctx.stroke();
+  // slope line
+  ctx.strokeStyle='#2a4060'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,H-h0-20); ctx.lineTo(W*0.55,H-20); ctx.stroke();
+  // ball
+  ctx.beginPath(); ctx.arc(ball.x, ball.y, 12, 0, Math.PI*2);
+  ctx.fillStyle='#00c8ff'; ctx.shadowColor='#00c8ff'; ctx.shadowBlur=16; ctx.fill();
+  ctx.shadowBlur=0;
+  // energy bars
+  const barX=W*0.72, barW=24, maxH=200, barY=H-30;
+  const total=ek+ep||1;
+  // Ep bar
+  ctx.fillStyle='#1a2235'; ctx.fillRect(barX,barY-maxH,barW,maxH);
+  ctx.fillStyle='#4a8fff'; ctx.fillRect(barX,barY-ep/total*maxH,barW,ep/total*maxH);
+  ctx.fillStyle='#7a8fb5'; ctx.font='11px Heebo'; ctx.textAlign='center';
+  ctx.fillText('Ep', barX+barW/2, barY+14);
+  // Ek bar
+  const barX2=barX+barW+14;
+  ctx.fillStyle='#1a2235'; ctx.fillRect(barX2,barY-maxH,barW,maxH);
+  ctx.fillStyle='#7fff6b'; ctx.fillRect(barX2,barY-ek/total*maxH,barW,ek/total*maxH);
+  ctx.fillText('Ek', barX2+barW/2, barY+14);
+  // total bar label
+  ctx.fillStyle='#fff'; ctx.font='10px Space Mono'; ctx.textAlign='right';
+  ctx.fillText('E_tot',W-10,20);
+  document.getElementById('eKin').textContent=ek.toFixed(1);
+  document.getElementById('ePot').textContent=ep.toFixed(1);
+  document.getElementById('eTotal').textContent=(ek+ep).toFixed(1);
+}
+function startEnergySim(){
+  if(energyRunning) return;
+  const canvas=document.getElementById('energyCanvas');
+  const W=canvas.clientWidth; canvas.width=W; canvas.height=260;
+  const h=parseFloat(document.getElementById('eH').value);
+  const m=1,g=0.3;
+  energyBall = {x:60, y:canvas.height-h-20, vx:2.5, vy:0};
+  const h0=h; const E0=m*g*h;
+  energyRunning=true;
+  function loop(){
+    const groundY=canvas.height-20;
+    energyBall.vy+=g; energyBall.x+=energyBall.vx; energyBall.y+=energyBall.vy;
+    if(energyBall.y>=groundY-12){energyBall.y=groundY-12; energyBall.vy*=-0.998;}
+    const currentH=Math.max(0,groundY-12-energyBall.y);
+    const ep=m*g*(currentH);
+    const ek=E0-ep;
+    drawEnergy(canvas, energyBall, h0, Math.max(0,ek), Math.max(0,ep));
+    if(energyBall.x<W+50) energyAnimId=requestAnimationFrame(loop);
+    else { energyRunning=false; }
+  }
+  loop();
+}
+function resetEnergySim(){
+  cancelAnimationFrame(energyAnimId); energyRunning=false;
+  const canvas=document.getElementById('energyCanvas');
+  const W=canvas.clientWidth; canvas.width=W; canvas.height=260;
+  const h=parseFloat(document.getElementById('eH').value);
+  document.getElementById('eHVal').textContent=h+' m';
+  const m=1,g=0.3,E0=m*g*h;
+  energyBall={x:60,y:canvas.height-h-20,vx:0,vy:0};
+  drawEnergy(canvas,energyBall,h,0,E0);
+  document.getElementById('eKin').textContent='0.0';
+  document.getElementById('ePot').textContent=E0.toFixed(1);
+  document.getElementById('eTotal').textContent=E0.toFixed(1);
+}
+document.getElementById('eH').addEventListener('input',()=>{
+  document.getElementById('eHVal').textContent=document.getElementById('eH').value+' m';
+  resetEnergySim();
+});
+
+// ===================== COLLISION =====================
+let collAnimId=null, collRunning=false;
+let collState={};
+function resetCollision(){
+  cancelAnimationFrame(collAnimId); collRunning=false;
+  const mA=parseFloat(document.getElementById('cMA').value);
+  const vA=parseFloat(document.getElementById('cVA').value);
+  const mB=parseFloat(document.getElementById('cMB').value);
+  document.getElementById('cMAVal').textContent=mA+' kg';
+  document.getElementById('cVAVal').textContent=vA+' m/s';
+  document.getElementById('cMBVal').textContent=mB+' kg';
+  const canvas=document.getElementById('collisionCanvas');
+  const W=canvas.clientWidth; canvas.width=W; canvas.height=180;
+  collState={mA,vA,mB,vB:0,xA:80,xB:W-120,W,collided:false};
+  drawCollision(canvas,collState);
+  document.getElementById('cPBefore').textContent=(mA*vA).toFixed(1)+' kg·m/s';
+  document.getElementById('cPAfter').textContent='—';
+}
+function drawCollision(canvas,s){
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#1e3a5f'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(0,H-20); ctx.lineTo(W,H-20); ctx.stroke();
+  // ball A
+  const rA=10+s.mA*3, rB=10+s.mB*3;
+  ctx.beginPath(); ctx.arc(s.xA,H-20-rA,rA,0,Math.PI*2);
+  ctx.fillStyle='#00c8ff'; ctx.shadowColor='#00c8ff'; ctx.shadowBlur=12; ctx.fill(); ctx.shadowBlur=0;
+  ctx.fillStyle='#fff'; ctx.font='bold 12px Heebo'; ctx.textAlign='center';
+  ctx.fillText('A',s.xA,H-20-rA+5);
+  // velocity arrow A
+  if(s.vA>0.1){
+    ctx.strokeStyle='#ff6b35'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(s.xA+rA,H-20-rA); ctx.lineTo(s.xA+rA+s.vA*6,H-20-rA); ctx.stroke();
+  }
+  // ball B
+  ctx.beginPath(); ctx.arc(s.xB,H-20-rB,rB,0,Math.PI*2);
+  ctx.fillStyle='#ff6b35'; ctx.shadowColor='#ff6b35'; ctx.shadowBlur=12; ctx.fill(); ctx.shadowBlur=0;
+  ctx.fillStyle='#fff'; ctx.font='bold 12px Heebo'; ctx.textAlign='center';
+  ctx.fillText('B',s.xB,H-20-rB+5);
+  if(Math.abs(s.vB)>0.1){
+    ctx.strokeStyle='#7fff6b'; ctx.lineWidth=2;
+    const dir=s.vB>0?1:-1;
+    ctx.beginPath(); ctx.moveTo(s.xB+rB*dir,H-20-rB); ctx.lineTo(s.xB+rB*dir+s.vB*6,H-20-rB); ctx.stroke();
+  }
+  // labels
+  ctx.fillStyle='#7a8fb5'; ctx.font='11px Space Mono'; ctx.textAlign='center';
+  ctx.fillText(s.mA+'kg v='+s.vA.toFixed(1), s.xA, H-20-rA-10-(rA>20?10:0));
+  ctx.fillText(s.mB+'kg v='+s.vB.toFixed(1), s.xB, H-20-rB-10-(rB>20?10:0));
+}
+function startCollision(){
+  if(collRunning) return;
+  const mA=parseFloat(document.getElementById('cMA').value);
+  const vA=parseFloat(document.getElementById('cVA').value);
+  const mB=parseFloat(document.getElementById('cMB').value);
+  const type=document.getElementById('cType').value;
+  const canvas=document.getElementById('collisionCanvas');
+  const W=canvas.clientWidth; canvas.width=W; canvas.height=180;
+  const rA=10+mA*3, rB=10+mB*3;
+  collState={mA,vA,mB,vB:0,xA:80,xB:W-120,W,collided:false,rA,rB,type};
+  collRunning=true;
+  function loop(){
+    collState.xA+=collState.vA*1.2;
+    collState.xB+=collState.vB*1.2;
+    // collision check
+    if(!collState.collided && collState.xA+collState.rA >= collState.xB-collState.rB){
+      collState.collided=true;
+      const {mA,vA,mB,vB,type}=collState;
+      let uA,uB;
+      if(type==='elastic'){
+        uA=((mA-mB)*vA+2*mB*vB)/(mA+mB);
+        uB=((mB-mA)*vB+2*mA*vA)/(mA+mB);
+      } else {
+        uA=uB=(mA*vA+mB*vB)/(mA+mB);
+      }
+      collState.vA=uA; collState.vB=uB;
+      document.getElementById('cPAfter').textContent=(mA*uA+mB*uB).toFixed(1)+' kg·m/s';
+    }
+    drawCollision(canvas,collState);
+    if(collState.xA>0&&collState.xA<W&&collState.xB>0&&collState.xB<W)
+      collAnimId=requestAnimationFrame(loop);
+    else collRunning=false;
+  }
+  document.getElementById('cPBefore').textContent=(mA*vA).toFixed(1)+' kg·m/s';
+  loop();
+}
+['cMA','cVA','cMB'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{
+  document.getElementById(id+'Val').textContent=document.getElementById(id).value+(id==='cVA'?' m/s':' kg');
+  resetCollision();
+}));
+setTimeout(resetCollision,100);
+
+// ===================== ORBIT =====================
+let orbitAnimId=null, orbitRunning=true, orbitAngle=0;
+function drawOrbit(){
+  const canvas=document.getElementById('orbitCanvas');
+  if(!canvas) return;
+  const W=canvas.clientWidth; canvas.width=W; canvas.height=300;
+  const ctx=canvas.getContext('2d');
+  const R=parseFloat(document.getElementById('oR').value);
+  const cx=W/2, cy=150;
+  ctx.clearRect(0,0,W,300);
+  // orbit path
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle='rgba(0,200,255,0.2)'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+  // star
+  ctx.beginPath(); ctx.arc(cx,cy,20,0,Math.PI*2);
+  const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,20);
+  grad.addColorStop(0,'#fff7aa'); grad.addColorStop(1,'#ff8800');
+  ctx.fillStyle=grad; ctx.shadowColor='#ff8800'; ctx.shadowBlur=30; ctx.fill(); ctx.shadowBlur=0;
+  // satellite
+  const sx=cx+R*Math.cos(orbitAngle), sy=cy+R*Math.sin(orbitAngle);
+  ctx.beginPath(); ctx.arc(sx,sy,8,0,Math.PI*2);
+  ctx.fillStyle='#00c8ff'; ctx.shadowColor='#00c8ff'; ctx.shadowBlur=16; ctx.fill(); ctx.shadowBlur=0;
+  // gravity vector (toward center)
+  const fLen=30*1200/R/R;
+  const dx=cx-sx, dy=cy-sy, dist=Math.sqrt(dx*dx+dy*dy);
+  ctx.strokeStyle='#ff6b35'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(sx+dx/dist*fLen,sy+dy/dist*fLen); ctx.stroke();
+  // velocity vector (tangent)
+  const vMag=Math.sqrt(1200/R);
+  ctx.strokeStyle='#7fff6b'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(sx-Math.sin(orbitAngle)*vMag*5,sy+Math.cos(orbitAngle)*vMag*5); ctx.stroke();
+  // legend
+  ctx.fillStyle='#ff6b35'; ctx.font='11px Heebo'; ctx.textAlign='left';
+  ctx.fillText('← כוח כבידה (F)',cx+R+10,cy-20);
+  ctx.fillStyle='#7fff6b';
+  ctx.fillText('← מהירות (v)',cx+R+10,cy);
+  document.getElementById('oRVal').textContent=R;
+  document.getElementById('oV').textContent=(Math.sqrt(1200/R)).toFixed(2);
+  document.getElementById('oF').textContent=(1200/R/R).toFixed(4);
+  if(orbitRunning){
+    orbitAngle+=Math.sqrt(1200)/R/R*0.04;
+    orbitAnimId=requestAnimationFrame(drawOrbit);
+  }
+}
+function toggleOrbit(){orbitRunning=!orbitRunning; if(orbitRunning) drawOrbit();}
+document.getElementById('oR').addEventListener('input', ()=>{if(!orbitRunning){drawOrbit();}});
+setTimeout(drawOrbit,200);
+
+// ===================== CIRCULAR =====================
+let circAngle=0, circAnimId=null;
+function drawCircular(){
+  const canvas=document.getElementById('circularCanvas');
+  if(!canvas) return;
+  const W=canvas.clientWidth; canvas.width=W; canvas.height=300;
+  const ctx=canvas.getContext('2d');
+  const R=parseFloat(document.getElementById('cirR').value);
+  const w=parseFloat(document.getElementById('cirW').value);
+  document.getElementById('cirRVal').textContent=R;
+  document.getElementById('cirWVal').textContent=w;
+  const v=w*R, aR=w*w*R, T=(2*Math.PI/w);
+  document.getElementById('cirV').textContent=v.toFixed(2);
+  document.getElementById('cirA').textContent=aR.toFixed(2);
+  document.getElementById('cirT').textContent=T.toFixed(2);
+  const cx=W/2, cy=150;
+  ctx.clearRect(0,0,W,300);
+  // circle path
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle='rgba(0,200,255,0.2)'; ctx.lineWidth=1; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+  // center dot
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2);
+  ctx.fillStyle='#3a5a7f'; ctx.fill();
+  // ball
+  const bx=cx+R*Math.cos(circAngle), by=cy+R*Math.sin(circAngle);
+  ctx.beginPath(); ctx.arc(bx,by,11,0,Math.PI*2);
+  ctx.fillStyle='#00c8ff'; ctx.shadowColor='#00c8ff'; ctx.shadowBlur=16; ctx.fill(); ctx.shadowBlur=0;
+  // centripetal acceleration (toward center)
+  const aLen=Math.min(aR*2,60);
+  const dx=cx-bx, dy=cy-by, dist=Math.sqrt(dx*dx+dy*dy);
+  ctx.strokeStyle='#ff6b35'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+dx/dist*aLen,by+dy/dist*aLen); ctx.stroke();
+  ctx.fillStyle='#ff6b35'; ctx.font='11px Heebo'; ctx.textAlign='left';
+  ctx.fillText('a_R',bx+dx/dist*aLen+4,by+dy/dist*aLen+4);
+  // velocity vector (tangent)
+  const vLen=Math.min(v*3,80);
+  ctx.strokeStyle='#7fff6b'; ctx.lineWidth=3;
+  ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx-Math.sin(circAngle)*vLen,by+Math.cos(circAngle)*vLen); ctx.stroke();
+  ctx.fillStyle='#7fff6b'; ctx.font='11px Heebo';
+  ctx.fillText('v',bx-Math.sin(circAngle)*vLen+4,by+Math.cos(circAngle)*vLen+4);
+  circAngle+=w*0.025;
+  circAnimId=requestAnimationFrame(drawCircular);
+}
+['cirR','cirW'].forEach(id=>document.getElementById(id).addEventListener('input',drawCircular));
+setTimeout(drawCircular,200);
+
+// init canvases when switching tabs
+document.querySelectorAll('nav button').forEach((btn,i)=>{
+  btn.addEventListener('click',()=>{
+    setTimeout(()=>{
+      if(document.getElementById('energyCanvas')) resetEnergySim();
+      if(document.getElementById('collisionCanvas')) resetCollision();
+    },50);
+  });
+});
+</script>
+</body>
+</html>
